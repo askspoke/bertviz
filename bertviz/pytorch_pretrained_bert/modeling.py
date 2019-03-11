@@ -86,6 +86,7 @@ def load_tf_weights_in_bert(model, tf_checkpoint_path):
             continue
         pointer = model
         if any(name == weight for weight in [['global_step'], ['output_bias'], ['output_weights']]):
+          # We can discard weights not associated with the Attention part of the model.
           continue
         for m_name in name:
             if re.fullmatch(r'[A-Za-z]+_\d+', m_name):
