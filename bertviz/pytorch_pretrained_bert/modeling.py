@@ -85,6 +85,9 @@ def load_tf_weights_in_bert(model, tf_checkpoint_path):
             print("Skipping {}".format("/".join(name)))
             continue
         pointer = model
+        if any(name == weight for weight in [['global_step'], ['output_bias'], ['output_weights']]):
+          # We can discard weights not associated with the Attention part of the model.
+          continue
         for m_name in name:
             if re.fullmatch(r'[A-Za-z]+_\d+', m_name):
                 l = re.split(r'_(\d+)', m_name)
@@ -105,6 +108,7 @@ def load_tf_weights_in_bert(model, tf_checkpoint_path):
             pointer = getattr(pointer, 'weight')
         elif m_name == 'kernel':
             array = np.transpose(array)
+
         try:
             assert pointer.shape == array.shape
         except AssertionError as e:
